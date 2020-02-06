@@ -100,6 +100,7 @@ def main():
   
   gmcnn_gan_trainer.train()
 
+  gmcnn_gan_trainer.gan_model.save()
 
 if __name__ == '__main__':
   main()
