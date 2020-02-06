@@ -15,6 +15,12 @@ log = training_utils.get_logger()
 MAIN_CONFIG_FILE = './config/main_config.ini'
 
 
+def callback():    
+    print("Running callback")    
+    os.system('bash callback.sh')
+    print ("Callback done")
+    
+    
 def main():
   parser = ArgumentParser()
   
@@ -96,7 +102,8 @@ def main():
                                       img_width=config.training.img_width,
                                       num_epochs=config.training.num_epochs,
                                       save_model_steps_period=config.training.save_model_steps_period,
-                                      output_paths=output_paths)
+                                      output_paths=output_paths,
+                                      callback=callback)
   
   gmcnn_gan_trainer.train()
 

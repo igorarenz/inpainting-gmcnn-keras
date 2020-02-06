@@ -12,7 +12,7 @@ from utils import training_utils
 class Trainer:
   
   def __init__(self, gan_model, img_dataset, mask_dataset, batch_size, img_height, img_width,
-               num_epochs, save_model_steps_period, output_paths: constants.OutputPaths):
+               num_epochs, save_model_steps_period, callback, output_paths: constants.OutputPaths):
     self.gan_model = gan_model
     self.img_dataset = img_dataset
     self.mask_dataset = mask_dataset
@@ -21,6 +21,7 @@ class Trainer:
     self.img_width = img_width
     self.num_epochs = num_epochs
     self.save_model_steps_period = save_model_steps_period
+    self.callback = callback
     
     self.num_samples = self.img_dataset.train_set.samples
     self.wgan_num_steps = int(self.num_samples / self.gan_model.wgan_batch_size)
@@ -79,6 +80,7 @@ class Trainer:
           l = {'metrics/psnr': m}
           tensorboard.on_epoch_end(global_step, l)
           self.gan_model.save()
+          self.callback()
         
         tensorboard.on_epoch_end(global_step, logs)
         global_step += 1
