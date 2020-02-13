@@ -26,7 +26,17 @@ class Trainer:
     self.num_samples = self.img_dataset.train_set.samples
     self.wgan_num_steps = int(self.num_samples / self.gan_model.wgan_batch_size)
     
-    self.epochs_iter = tqdm.tqdm(range(self.num_epochs), total=self.num_epochs, desc='Epochs')
+    
+    self.epoch_file = output_paths.epoch_file
+    with open(self.epoch_file, "r") as f:
+        s = f.readline()
+        startEpoch = int(s)
+        print("StartEpoch: %s" % startEpoch)
+        s = f.readline()
+        self.start_step = int(s)
+        print("StartStep: %s" % self.start_step)
+              
+    self.epochs_iter = tqdm.tqdm(range(startEpoch, self.num_epochs), total=self.num_epochs, desc='Epochs')
     if self.gan_model.warm_up_generator:
       self.log_path = output_paths.warm_up_logs_path
       self.predicted_img_path = output_paths.predicted_pics_warm_up_path
@@ -42,7 +52,7 @@ class Trainer:
     tensorboard = callbacks.TensorBoard(self.log_path, 0)
     tensorboard.set_model(self.gan_model.generator)
     
-    global_step = 0
+    global_step = self.start_step
     for epoch in self.epochs_iter:
       step = 0
       for real_img in self.img_dataset.train_set:
@@ -80,6 +90,8 @@ class Trainer:
           l = {'metrics/psnr': m}
           tensorboard.on_epoch_end(global_step, l)
           self.gan_model.save()
+          with open(self.epoch_file, "w") as f:
+              f.write("%s\n" % (epoch, global_step))
           self.callback()
         
         tensorboard.on_epoch_end(global_step, logs)

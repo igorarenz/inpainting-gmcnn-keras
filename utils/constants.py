@@ -18,3 +18,4 @@ class OutputPaths:
     self.generator_weights_path = os.path.join(self.output_weights_path, 'gmcnn.h5')
     self.global_critic_weights_path = os.path.join(self.output_weights_path, 'global_critic.h5')
     self.local_critic_weights_file = os.path.join(self.output_weights_path, 'local_critic.h5')
+    self.epoch_file = os.path.join(self.output_path, 'epoch.txt')
