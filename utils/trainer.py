@@ -91,7 +91,7 @@ class Trainer:
           tensorboard.on_epoch_end(global_step, l)
           self.gan_model.save()
           with open(self.epoch_file, "w") as f:
-              f.write("%s\n" % (epoch, global_step))
+              f.write("%s\n%s" % (epoch, global_step))
           self.callback()
         
         tensorboard.on_epoch_end(global_step, logs)
