@@ -95,21 +95,24 @@ class WassersteinGAN:
   def get_batch(self, wgan_batch, i):
     return [x[i * self.batch_size: (i + 1) * self.batch_size] for x in wgan_batch]
   
-  def load(self):
-    self.generator.load_weights(self.generator_weights_path, by_name=True, skip_mismatch=True)
-    log.info('Loaded generator weights from: %s', self.generator_weights_path)
-    self.global_discriminator.load_weights(self.global_critic_weights_path, by_name=True,
+  def load(self, folder):
+    log.info("Load weights from: %s", folder)
+    self.generator.load_weights(os.path.join(folder, 'gmcnn.h5'), by_name=True, skip_mismatch=True)
+    self.global_discriminator.load_weights(os.path.join(folder, 'global_critic.h5'), by_name=True,
                                            skip_mismatch=True)
-    log.info('Loaded global critic weights from: %s', self.global_critic_weights_path)
-    self.local_discriminator.load_weights(self.local_critic_weights_path, by_name=True,
+    self.local_discriminator.load_weights(os.path.join(folder, 'local_critic.h5'), by_name=True,
                                           skip_mismatch=True)
-    log.info('Loaded local critic weights from: %s', self.local_critic_weights_path)
+    log.info('Loading done.')
   
-  def save(self):
-    os.makedirs(self.output_paths.output_weights_path, exist_ok=True)
-    self.generator.save_weights(self.generator_weights_path, overwrite=True)
-    log.info('Saved generator weights to: %s', self.generator_weights_path)
-    self.global_discriminator.save_weights(self.global_critic_weights_path, overwrite=True)
-    log.info('Saved global critic weights to: %s', self.global_critic_weights_path)
-    self.global_discriminator.save_weights(self.local_critic_weights_path, overwrite=True)
-    log.info('Saved local critic weights to: %s', self.local_critic_weights_path)
+  def save(self, folder):
+      
+    if os.path.exists(folder):
+        log.info("Cant save weights! Folder exists: %s", folder)
+        system.exit(-1)
+        
+    log.info("Saving weights to: %s", folder)
+    os.makedirs(folder)
+    self.generator.save_weights(os.path.join(folder, 'gmcnn.h5'), overwrite=True)
+    self.global_discriminator.save_weights(os.path.join(folder, 'global_critic.h5'), overwrite=True)
+    self.global_discriminator.save_weights(os.path.join(folder, 'local_critic.h5'), overwrite=True)
+    log.info('Saving done.')

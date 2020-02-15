@@ -1,5 +1,6 @@
 # !/usr/bin/env python3
 
+import os.path
 import numpy as np
 import tqdm
 from keras import callbacks
@@ -28,15 +29,17 @@ class Trainer:
     
     
     self.epoch_file = output_paths.epoch_file
+    self.weights_output_folder = output_paths.output_weights_path
+
     with open(self.epoch_file, "r") as f:
         s = f.readline()
         startEpoch = int(s)
         print("StartEpoch: %s" % startEpoch)
         s = f.readline()
-        self.start_step = int(s)
+        self.start_step = int(s)+1
         print("StartStep: %s" % self.start_step)
               
-    self.epochs_iter = tqdm.tqdm(range(startEpoch, self.num_epochs), total=self.num_epochs, desc='Epochs')
+    self.epochs_iter = tqdm.tqdm(range(startEpoch, self.num_epochs), total=self.num_epochs, desc='Epochs', initial=startEpoch)
     if self.gan_model.warm_up_generator:
       self.log_path = output_paths.warm_up_logs_path
       self.predicted_img_path = output_paths.predicted_pics_warm_up_path
@@ -89,8 +92,15 @@ class Trainer:
           m = metrics.psnr(input_img, predicted_img)
           l = {'metrics/psnr': m}
           tensorboard.on_epoch_end(global_step, l)
-          self.gan_model.save()
+
+          if self.gan_model.warm_up_generator:
+              output_folder_name = "step_warmup_%08d" % global_step
+          else:
+              output_folder_name = "step_wgan_%08d" % global_step
+
+          self.gan_model.save(os.path.join(self.weights_output_folder, output_folder_name))
           with open(self.epoch_file, "w") as f:
+              print("Writing epoch-file: %s / %s" % (epoch, global_step))
               f.write("%s\n%s" % (epoch, global_step))
           self.callback()
         

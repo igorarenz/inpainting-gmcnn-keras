@@ -69,9 +69,18 @@ def main():
                                        config=config,
                                        output_paths=output_paths)
   
-  if args.from_weights:
-    log.info('Continue training from checkpoint...')
-    gmcnn_gan_model.load()
+  #if args.from_weights:
+  #  log.info('Continue training from checkpoint...')
+  #  gmcnn_gan_model.load()
+
+  # look for newest weights
+  weights_folder = output_paths.output_weights_path
+  folders = [f.path for f in os.scandir(weights_folder) if f.is_dir()]
+  folders.sort()
+  last_folder = folders[-1]
+  print ("Loading weights from folder: %s" % last_folder)
+  gmcnn_gan_model.load(last_folder)
+
   
   img_dataset = datasets.Dataset(train_path=train_path,
                                  test_path=train_path,
